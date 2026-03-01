@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "username": "john_staff",
+    "email": "john@ex.com",
+    "hashed_password": "9b8769a4a742959a2d0298c36fb70623f2dfacda8436237df08d8dfd5b37374c",
+    "role": "staff",
+    "created_at": "2026-03-01T17:30:32.439213",
+    "updated_at": "2026-03-01T17:30:32.439213"
+  }
+]

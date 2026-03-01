@@ -9,10 +9,33 @@ import json  # For reading/writing JSON file
 import hashlib  # For SHA-256 password hashing
 import os  # For file system operations
 from typing import Optional  # For optional type hints
+from datetime import datetime  # For timestamp management
 
 
 # Configuration
 USERS_FILE = "users.json"  # Default filename for user storage
+
+
+def _is_valid_email(email: str) -> bool:
+    """
+    Validate email format with simple check.
+    
+    Checks for presence of '@' and '.' in the domain part.
+    
+    Args:
+        email: Email address to validate.
+        
+    Returns:
+        True if email appears valid, False otherwise.
+    """
+    if "@" not in email:  # Check for @ symbol
+        return False
+    
+    # Split at @ and check domain has a dot
+    local_part, domain = email.rsplit("@", 1)  # Split into local and domain parts
+    
+    # Verify both parts are non-empty and domain contains a dot
+    return len(local_part) > 0 and "." in domain and len(domain) > 1  # Validate structure
 
 
 class User:
@@ -22,16 +45,22 @@ class User:
     Attributes:
         id: Unique integer identifier for the user.
         username: Unique username for login.
+        email: Unique email address (required).
         hashed_password: SHA-256 hashed password.
         role: User role ('admin', 'staff', or 'viewer'). Defaults to 'staff'.
+        created_at: ISO format timestamp of user creation.
+        updated_at: ISO format timestamp of last update.
     """
     
     def __init__(
         self,
         id: int,
         username: str,
+        email: str,
         hashed_password: str,
-        role: str = "staff"
+        role: str = "staff",
+        created_at: Optional[str] = None,
+        updated_at: Optional[str] = None
     ) -> None:
         """
         Initialize a User object.
@@ -39,13 +68,29 @@ class User:
         Args:
             id: Unique integer identifier.
             username: Unique username for login.
+            email: Unique email address (required).
             hashed_password: Pre-hashed password.
             role: User role ('admin', 'staff', or 'viewer'). Defaults to 'staff'.
+            created_at: ISO format creation timestamp. Auto-generated if not provided.
+            updated_at: ISO format update timestamp. Auto-generated if not provided.
+            
+        Raises:
+            ValueError: If email format is invalid.
         """
+        # Validate email format
+        if not _is_valid_email(email):  # Check email validity
+            raise ValueError(f"Invalid email format: '{email}'.")  # Raise error if invalid
+        
         self.id = id  # Store unique user identifier
         self.username = username  # Store login username
+        self.email = email  # Store unique email address
         self.hashed_password = hashed_password  # Store SHA-256 hashed password
         self.role = role  # Store user role (admin/staff/viewer)
+        
+        # Set timestamps with current time if not provided
+        now = datetime.now().isoformat()  # Get current ISO timestamp
+        self.created_at = created_at or now  # Use provided or current timestamp
+        self.updated_at = updated_at or now  # Use provided or current timestamp
     
     def _hash_password(self, password: str) -> str:
         """
@@ -87,7 +132,7 @@ class User:
         Returns:
             True if user has valid credentials, False otherwise.
         """
-        return self.id is not None and self.username is not None  # Check if user has required fields
+        return self.id is not None and self.username is not None and self.email is not None  # Check if user has required fields
     
     def to_dict(self) -> dict:
         """
@@ -99,8 +144,11 @@ class User:
         return {  # Convert user object to dictionary for JSON storage
             "id": self.id,
             "username": self.username,
+            "email": self.email,
             "hashed_password": self.hashed_password,
-            "role": self.role
+            "role": self.role,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
     
     @classmethod
@@ -113,12 +161,22 @@ class User:
             
         Returns:
             User instance.
+            
+        Raises:
+            ValueError: If required 'email' field is missing (backward compatibility check).
         """
+        # Check for required email field
+        if "email" not in user_dict:  # Validate email exists
+            raise ValueError("User data missing required 'email' field. Cannot load legacy user without email.")  # Raise error for backward compatibility
+        
         return cls(  # Create User object from dictionary
             id=user_dict.get("id"),
             username=user_dict.get("username"),
+            email=user_dict.get("email"),
             hashed_password=user_dict.get("hashed_password"),
-            role=user_dict.get("role", "staff")  # Default role to 'staff' if not provided
+            role=user_dict.get("role", "staff"),  # Default role to 'staff' if not provided
+            created_at=user_dict.get("created_at"),  # Preserve creation timestamp
+            updated_at=user_dict.get("updated_at")  # Preserve update timestamp
         )
     
     @classmethod
@@ -139,7 +197,7 @@ class User:
             with open(fn, 'r') as f:  # Open users file
                 data = json.load(f)  # Parse JSON data
                 return [cls.from_dict(user_data) for user_data in data]  # Convert each dict to User object
-        except (json.JSONDecodeError, IOError):  # Handle file read/parse errors
+        except (json.JSONDecodeError, IOError, ValueError):  # Handle file read/parse errors or missing email
             return []  # Return empty list on error
     
     @classmethod
@@ -186,6 +244,7 @@ class User:
     def create_user(
         cls,
         username: str,
+        email: str,
         password: str,
         role: str = "staff",
         fn: str = USERS_FILE
@@ -193,10 +252,11 @@ class User:
         """
         Create a new user (public method for self-registration).
         
-        Validates username uniqueness, hashes password, and persists.
+        Validates username and email uniqueness, hashes password, and persists.
         
         Args:
             username: Unique username.
+            email: Unique email address.
             password: Plain text password.
             role: User role ('admin', 'staff', or 'viewer'). Defaults to 'staff'.
             fn: Filename to save to. Defaults to USERS_FILE.
@@ -205,25 +265,32 @@ class User:
             User instance if created successfully, None if validation fails.
             
         Raises:
-            ValueError: If username already exists.
+            ValueError: If username or email already exists, or if email format is invalid.
         """
         users = cls.load_users(fn)  # Load existing users
         
-        # Validate username uniqueness
+        # Validate email format
+        if not _is_valid_email(email):  # Check email validity
+            raise ValueError(f"Invalid email format: '{email}'.")  # Raise error if invalid
+        
+        # Validate username and email uniqueness
         for user in users:  # Check each user
             if user.username == username:  # Ensure username not taken
-                raise ValueError(f"Username '{username}' already exists.")  # Raise error if duplicate
+                raise ValueError(f"Username or email already exists.")  # Raise error if duplicate
+            if user.email == email:  # Ensure email not taken
+                raise ValueError(f"Username or email already exists.")  # Raise error if duplicate
         
         # Create new user with next available id
         user_id = max([u.id for u in users], default=0) + 1  # Get highest ID and increment
         
         # Hash password
-        temp_user = cls(id=user_id, username=username, hashed_password="")  # Temp object for hashing
+        temp_user = cls(id=user_id, username=username, email=email, hashed_password="")  # Temp object for hashing
         hashed_pw = temp_user._hash_password(password)  # Hash plain password
         
         new_user = cls(  # Create new User object
             id=user_id,
             username=username,
+            email=email,
             hashed_password=hashed_pw,  # Use hashed password
             role=role  # Assign role
         )
@@ -237,6 +304,7 @@ class User:
     def add_user(
         self,
         username: str,
+        email: str,
         password: str,
         role: str = "staff",
         fn: str = USERS_FILE
@@ -246,6 +314,7 @@ class User:
         
         Args:
             username: Unique username.
+            email: Unique email address.
             password: Plain text password.
             role: User role ('admin', 'staff', or 'viewer'). Defaults to 'staff'.
             fn: Filename to save to. Defaults to USERS_FILE.
@@ -255,12 +324,12 @@ class User:
             
         Raises:
             PermissionError: If caller is not an admin.
-            ValueError: If username already exists.
+            ValueError: If username or email already exists, or if email format is invalid.
         """
         if not self.is_admin():  # Check admin permission
             raise PermissionError("Only admins can add users.")  # Deny if not admin
         
-        return User.create_user(username, password, role, fn)  # Call public create_user if authorized
+        return User.create_user(username, email, password, role, fn)  # Call public create_user if authorized
     
     def delete_user(
         self,
@@ -300,13 +369,13 @@ class User:
         """
         List all users (admin-only method).
         
-        Returns all users with username, role, and id information.
+        Returns all users with username, email, role, and id information.
         
         Args:
             fn: Filename to load users from. Defaults to USERS_FILE.
             
         Returns:
-            List of user dictionaries containing id, username, and role.
+            List of user dictionaries containing id, username, email, and role.
             
         Raises:
             PermissionError: If caller is not an admin.
@@ -319,6 +388,7 @@ class User:
             {
                 "id": u.id,  # Include user ID
                 "username": u.username,  # Include username
+                "email": u.email,  # Include email
                 "role": u.role  # Include role
             }
             for u in users  # For each loaded user

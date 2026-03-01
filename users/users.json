@@ -2,25 +2,37 @@
   {
     "id": 1,
     "username": "edwin_ceo",
+    "email": "edwin.ceo@company.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
-    "role": "admin"
+    "role": "admin",
+    "created_at": "2026-01-01T00:00:00",
+    "updated_at": "2026-01-01T00:00:00"
   },
   {
     "id": 2,
     "username": "sharon_products",
+    "email": "sharon.products@company.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
-    "role": "admin"
+    "role": "admin",
+    "created_at": "2026-01-01T00:00:00",
+    "updated_at": "2026-01-01T00:00:00"
   },
   {
     "id": 3,
     "username": "naomi_transactions",
+    "email": "naomi.transactions@company.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
-    "role": "admin"
+    "role": "admin",
+    "created_at": "2026-01-01T00:00:00",
+    "updated_at": "2026-01-01T00:00:00"
   },
   {
     "id": 4,
     "username": "denis_kipruto",
+    "email": "denis.kipruto@company.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
-    "role": "admin"
+    "role": "admin",
+    "created_at": "2026-01-01T00:00:00",
+    "updated_at": "2026-01-01T00:00:00"
   }
 ]
