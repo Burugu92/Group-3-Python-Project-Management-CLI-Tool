@@ -8,10 +8,6 @@ class InventoryService:
         self.file_path = file_path
 
     def load_products(self):
-        """
-        Load products from JSON file.
-        Returns a list of Product objects.
-        """
         if not os.path.exists(self.file_path):
             return []
 
@@ -19,3 +15,28 @@ class InventoryService:
             data = json.load(file)
 
         return [Product.from_dict(item) for item in data]
+
+    def save_products(self, products):
+        with open(self.file_path, "w") as file:
+            json.dump([product.to_dict() for product in products], file, indent=4)
+
+    def create_product(self, name, category, price, quantity):
+        products = self.load_products()
+
+        new_id = 1
+        if products:
+            new_id = max(product.product_id for product in products) + 1
+
+        new_product = Product(new_id, name, category, price, quantity)
+        products.append(new_product)
+
+        self.save_products(products)
+        return new_product
+
+    def get_all_products(self):
+        return self.load_products()
+
+    def delete_product(self, product_id):
+        products = self.load_products()
+        products = [p for p in products if p.product_id != product_id]
+        self.save_products(products)
