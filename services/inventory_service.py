@@ -8,6 +8,10 @@ class InventoryService:
         self.file_path = file_path
 
     def load_products(self):
+        """
+        Load products from JSON file.
+        Returns a list of Product objects.
+        """
         if not os.path.exists(self.file_path):
             return []
 
@@ -17,10 +21,16 @@ class InventoryService:
         return [Product.from_dict(item) for item in data]
 
     def save_products(self, products):
+        """
+        Save list of Product objects to JSON file.
+        """
         with open(self.file_path, "w") as file:
             json.dump([product.to_dict() for product in products], file, indent=4)
 
     def create_product(self, name, category, price, quantity):
+        """
+        Create and store a new product.
+        """
         products = self.load_products()
 
         new_id = 1
@@ -34,9 +44,38 @@ class InventoryService:
         return new_product
 
     def get_all_products(self):
+        """
+        Return all products.
+        """
         return self.load_products()
 
-    def delete_product(self, product_id):
+    def update_product(self, product_id, name=None, category=None, price=None, quantity=None):
+        """
+        Update an existing product.
+        """
         products = self.load_products()
-        products = [p for p in products if p.product_id != product_id]
-        self.save_products(products)
+
+        for product in products:
+            if product.product_id == product_id:
+                if name is not None:
+                    product.name = name
+                if category is not None:
+                    product.category = category
+                if price is not None:
+                    product.price = float(price)
+                if quantity is not None:
+                    product.quantity = int(quantity)
+
+                self.save_products(products)
+                return product
+
+        return None
+
+    def delete_product(self, product_id):
+        """
+        Delete a product by ID.
+        """
+        products = self.load_products()
+        updated_products = [p for p in products if p.product_id != product_id]
+
+        self.save_products(updated_products)
