@@ -1,1 +1,22 @@
-[]
+[
+    {
+        "product_id": 1,
+        "name": "Laptop",
+        "category": "Electronics",
+        "quantity": 7
+    },
+    {
+        "product_id": 2,
+        "name": "Mouse",
+        "category": "Electronics",
+        "price": 25.0,
+        "quantity": 35
+    },
+    {
+        "product_id": 3,
+        "name": "Keyboard",
+        "category": "Electronics",
+        "price": 45.0,
+        "quantity": 25
+    }
+]
