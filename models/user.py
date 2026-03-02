@@ -12,7 +12,7 @@ from typing import Optional  # For optional type hints
 
 
 # Configuration
-USERS_FILE = "users.json"  # Default filename for user storage
+USERS_FILE = os.path.join("data", "users.json") # Default filename for user storage
 
 
 class User:

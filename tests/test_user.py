@@ -2,7 +2,7 @@
 Test script for user.py - CLI Inventory System
 """
 
-from user import User
+from models.user import User
 
 # Load admins
 users = User.load_users()
