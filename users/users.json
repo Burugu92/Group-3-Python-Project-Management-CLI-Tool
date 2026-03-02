@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "username": "edwin_ceo",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "username": "sharon_products",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 3,
+    "username": "naomi_transactions",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 4,
+    "username": "denis_kipruto",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  }
+]
