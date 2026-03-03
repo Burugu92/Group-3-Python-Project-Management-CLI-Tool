@@ -143,6 +143,16 @@ class User:
             return []  # Return empty list on error
     
     @classmethod
+    def get_user_by_username(cls, username):
+      """
+      Retrieve a user object by username.
+      """
+      users = cls.load_users()  # This should return a list of User objects
+      for user in users:
+        if user.username == username:
+            return user
+      return None
+    @classmethod
     def save_users(cls, users: list, fn: str = USERS_FILE) -> None:
         """
         Save users to JSON file.
