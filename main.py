@@ -266,13 +266,17 @@ def main():
         print_section("Inventory Management System", Color.BOLD + Color.GREEN)
         #parser.print_help()
         menu_options = [
-            ["Command", "Action", "Permission"],
-            ["1. login", "Access your account", "Public"],
-            ["2. list-products", "View inventory", "Staff/Admin"],
-            ["3. add-product", "Create new entry", "Admin Only"],
-            ["4. sell-product", "Register a sale", "Staff/Admin"],
-            ["5. list-users", "Manage team", "Admin Only"],
-        ]
+    ["Command", "Action", "Permission"],
+    ["1. login", "Access your account", "Public"],
+    ["2. list-products", "View inventory", "Staff/Admin"],
+    ["3. add-product", "Create new entry", "Admin Only"],
+    ["4. sell-product", "Register a sale", "Staff/Admin"],
+    ["5. list-users", "Manage team", "Admin Only"],
+    ["6. restock-product", "Increase stock levels", "Admin Only"],
+    ["7. list-transactions", "View audit history", "Staff/Admin"],
+    ["8. logout", "Exit current session", "Public"]
+]
+        
         print(tabulate(menu_options, headers="firstrow", tablefmt="simple"))
         print(f"\n{Color.YELLOW}💡 Hint: Use --help after any command for details.{Color.END}\n")
 
