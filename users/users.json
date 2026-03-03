@@ -1,8 +1,8 @@
 [
   {
     "id": 1,
-    "username": "edwin_ceo",
-    "email": "edwin.ceo@company.com",
+    "username": "Edwin Burugu",
+    "email": "edwin.m.burugu@gmail.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
     "role": "admin",
     "created_at": "2026-01-01T00:00:00",
@@ -10,8 +10,8 @@
   },
   {
     "id": 2,
-    "username": "sharon_products",
-    "email": "sharon.products@company.com",
+    "username": "Sharon Apot",
+    "email": "sharonapot@gmail.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
     "role": "admin",
     "created_at": "2026-01-01T00:00:00",
@@ -19,8 +19,8 @@
   },
   {
     "id": 3,
-    "username": "naomi_transactions",
-    "email": "naomi.transactions@company.com",
+    "username": "Naomi Nzioka",
+    "email": "nziokanaomi422@gmail.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
     "role": "admin",
     "created_at": "2026-01-01T00:00:00",
@@ -28,8 +28,8 @@
   },
   {
     "id": 4,
-    "username": "denis_kipruto",
-    "email": "denis.kipruto@company.com",
+    "username": "Denis kipruto",
+    "email": "kypvega@gmail.com",
     "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
     "role": "admin",
     "created_at": "2026-01-01T00:00:00",

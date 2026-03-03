@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "username": "edwin_ceo",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "username": "sharon_products",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 3,
+    "username": "naomi_transactions",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 4,
+    "username": "denis_kipruto",
+    "hashed_password": "ffaa3b2b277d10dd9484cccfa849db4d4e8aa609ec9c61e42ca83c26bc95d01f",
+    "role": "admin"
+  },
+  {
+    "id": 5,
+    "username": "admin1",
+    "hashed_password": "ceaa28bba4caba687dc31b1bbe79eca3c70c33f871f1ce8f528cf9ab5cfd76dd",
+    "role": "admin"
+  },
+  {
+    "id": 6,
+    "username": "staff",
+    "hashed_password": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
+    "role": "staff"
+  },
+  {
+    "id": 7,
+    "username": "staff2",
+    "hashed_password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "role": "staff"
+  },
+  {
+    "id": 8,
+    "username": "user1",
+    "hashed_password": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9",
+    "role": "staff"
+  },
+  {
+    "id": 9,
+    "username": "viewer1",
+    "hashed_password": "318aee3fed8c9d040d35a7fc1fa776fb31303833aa2de885354ddf3d44d8fb69",
+    "role": "staff"
+  },
+  {
+    "id": 10,
+    "username": "user2",
+    "hashed_password": "318aee3fed8c9d040d35a7fc1fa776fb31303833aa2de885354ddf3d44d8fb69",
+    "role": "viewer"
+  },
+  {
+    "id": 11,
+    "username": "testadmin",
+    "hashed_password": "7e6e0c3079a08c5cc6036789b57e951f65f82383913ba1a49ae992544f1b4b6e",
+    "role": "admin"
+  }
+]
