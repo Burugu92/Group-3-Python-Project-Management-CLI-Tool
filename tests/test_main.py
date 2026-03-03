@@ -160,4 +160,4 @@ def test_no_command_prints_help(capsys):
     with patch.object(sys, "argv", ["main.py"]):
         main.main()
     captured = capsys.readouterr()
-    assert "CLI Inventory Management System" in captured.out
+    assert "INVENTORY MANAGEMENT SYSTEM" in captured.out
