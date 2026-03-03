@@ -265,16 +265,17 @@ def main():
     else:
         print_section("Inventory Management System", Color.BOLD + Color.GREEN)
         #parser.print_help()
-        menu_options = [
-    ["Command", "Action", "Permission"],
-    ["1. login", "Access your account", "Public"],
-    ["2. list-products", "View inventory", "Staff/Admin"],
-    ["3. add-product", "Create new entry", "Admin Only"],
-    ["4. sell-product", "Register a sale", "Staff/Admin"],
-    ["5. list-users", "Manage team", "Admin Only"],
-    ["6. restock-product", "Increase stock levels", "Admin Only"],
-    ["7. list-transactions", "View audit history", "Staff/Admin"],
-    ["8. logout", "Exit current session", "Public"]
+        menu_options = [["#", "Command", "Action", "Permission"],
+    ["1", "register", "Create a new account", "Public"],
+    ["2", "login", "Access your account", "Public"],
+    ["3", "list-products", "View inventory", "Staff/Admin/Viewer"],
+    ["4", "add-product", "Create new entry", "Admin Only"],
+    ["5", "sell-product", "Register a sale", "Staff/Admin"],
+    ["6", "restock-product", "Increase stock levels", "Admin Only"],
+    ["7", "list-transactions", "View audit history", "Staff/Admin"],
+    ["8", "list-users", "Manage team", "Admin Only"],
+    ["9", "logout", "Exit current session", "Public"]
+    
 ]
         
         print(tabulate(menu_options, headers="firstrow", tablefmt="simple"))
