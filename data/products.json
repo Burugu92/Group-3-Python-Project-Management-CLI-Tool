@@ -3,8 +3,8 @@
         "product_id": 1,
         "name": "Laptop",
         "category": "Electronics",
-        "price": 999.99,
-        "quantity": 8
+         "price": 200.0,
+        "quantity": 7
     },
     {
         "product_id": 2,
