@@ -7,5 +7,14 @@
     "role": "staff",
     "created_at": "2026-03-01T17:30:32.439213",
     "updated_at": "2026-03-01T17:30:32.439213"
+  },
+  {
+    "id": 2,
+    "username": "edwin_ceo",
+    "email": "duplicate@example.com",
+    "hashed_password": "253c2e786c2414dcaec8dbf11df515b5075371454b93a5687d24d96ddbf3b939",
+    "role": "staff",
+    "created_at": "2026-03-03T13:21:41.571042",
+    "updated_at": "2026-03-03T13:21:41.571042"
   }
 ]
