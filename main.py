@@ -263,7 +263,7 @@ def main():
     if hasattr(args, "func"):
         args.func(cli_context, args)
     else:
-        print_section("Inventory Management System", Color.BOLD + Color.GREEN)
+        print_section("CLI Inventory Management System", Color.BOLD + Color.GREEN)
         #parser.print_help()
         menu_options = [["#", "Command", "Action", "Permission"],
     ["1", "register", "Create a new account", "Public"],
