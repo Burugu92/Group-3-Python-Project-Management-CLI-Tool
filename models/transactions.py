@@ -10,7 +10,7 @@ class Transaction:
     transactions_data = "data/transactions.json"
 
     def __init__(self, item_name, quantity, transaction_type, transaction_id=None, timestamp=None):
-        if not transaction_id:
+        if transaction_id is None:
             self.transaction_id = Transaction.id_counter
             Transaction.id_counter += 1
         else:
@@ -52,19 +52,22 @@ class Transaction:
     def load_transactions_from_file(cls):
         data = load_from_file(cls.transactions_data)
         cls.transactions = []
-        max_id = cls.id_counter
+        max_id = -1
         for item in data:
-            # Update max_id to ensure unique transaction IDs for new transactions
+            # Update max_id to ensure the next transaction gets a unique ID
             max_id = max(max_id, item["transaction_id"])
-            item = cls(
+            t = cls(
                 item["item_name"],
                 item["quantity"],
                 item["type"],
                 item["transaction_id"],
                 item["timestamp"]
             )
-            cls.transactions.append(item)
-        Transaction.id_counter = max_id + 1
+            cls.transactions.append(t)
+            
+            if t.transaction_id > max_id:
+                max_id = t.transaction_id
+        cls.id_counter = max_id + 1
 
 
     @classmethod
