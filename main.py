@@ -97,6 +97,7 @@ def add_product(cli_context, args):
 
 @login_required
 def list_products(cli_context, args):
+    print_section("Inventory Products", Color.CYAN)
     products_file = "data/products.json"
     products = load_products(products_file)
 
@@ -158,6 +159,7 @@ def restock_product(cli_context, args):
 
 @login_required
 def list_transactions_cli(cli_context, args):
+    print_section("All Transactions", Color.CYAN)
     user = cli_context["user"]
     if user.role == "viewer":
         print("❌ Viewers cannot view transaction history.")
@@ -168,6 +170,7 @@ def list_transactions_cli(cli_context, args):
 @login_required
 @admin_required
 def list_users_cli(cli_context, args):
+    print_section("All Registered Users", Color.PURPLE)
     user = cli_context["user"]
     users = user.list_users()
     table = [[u["id"], u["username"], u["role"]] for u in users]
@@ -183,6 +186,35 @@ def load_products(file_path="data/products.json"):
 def save_products(file_path, products):
     from utils.storage_handler import save_to_file
     save_to_file([p.to_dict() for p in products], file_path)
+    
+#for menu styling and color output    
+def print_section(title, color_code="\033[94m"):
+    """
+    Prints a styled header like: ══════════ TITLE ══════════
+    Default color is Cyan.
+    """
+    width = 60
+    # Clean up the title and center it
+    styled_title = f" {title.upper()} "
+    # Fill the rest with '=' or '═'
+    padding = (width - len(styled_title)) // 2
+    line = "═" * padding
+    
+    reset = "\033[0m"
+    print(f"\n{color_code}{line}{styled_title}{line}{reset}\n")
+
+# ANSI Color shortcuts
+class Color:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
 
 # CLI Argument Parser
 
@@ -231,7 +263,18 @@ def main():
     if hasattr(args, "func"):
         args.func(cli_context, args)
     else:
-        parser.print_help()
+        print_section("Inventory Management System", Color.BOLD + Color.GREEN)
+        #parser.print_help()
+        menu_options = [
+            ["Command", "Action", "Permission"],
+            ["1. login", "Access your account", "Public"],
+            ["2. list-products", "View inventory", "Staff/Admin"],
+            ["3. add-product", "Create new entry", "Admin Only"],
+            ["4. sell-product", "Register a sale", "Staff/Admin"],
+            ["5. list-users", "Manage team", "Admin Only"],
+        ]
+        print(tabulate(menu_options, headers="firstrow", tablefmt="simple"))
+        print(f"\n{Color.YELLOW}💡 Hint: Use --help after any command for details.{Color.END}\n")
 
 if __name__ == "__main__":
     main()
