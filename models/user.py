@@ -2,17 +2,13 @@
 User module for CLI Inventory Management System.
 
 Handles user management, authentication, and JSON persistence.
+Uses utils/user_store.py for centralized file I/O operations.
 """
 
 from __future__ import annotations  # Enable modern type hints for Python 3.8
-import json  # For reading/writing JSON file
 import hashlib  # For SHA-256 password hashing
-import os  # For file system operations
 from typing import Optional  # For optional type hints
-
-
-# Configuration
-USERS_FILE = os.path.join("data", "users.json") # Default filename for user storage
+from utils import user_store  # Import centralized user store utilities
 
 
 class User:
@@ -122,25 +118,18 @@ class User:
         )
     
     @classmethod
-    def load_users(cls, fn: str = USERS_FILE) -> list:
+    def load_users(cls, fn: str = None) -> list:
         """
-        Load users from JSON file.
+        Load users from data/users.json using the user_store utility.
         
         Args:
-            fn: Filename to load from. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Returns:
             List of User objects. Empty list if file doesn't exist.
         """
-        if not os.path.exists(fn):  # Check if users file exists
-            return []  # Return empty list if file not found
-        
-        try:
-            with open(fn, 'r') as f:  # Open users file
-                data = json.load(f)  # Parse JSON data
-                return [cls.from_dict(user_data) for user_data in data]  # Convert each dict to User object
-        except (json.JSONDecodeError, IOError):  # Handle file read/parse errors
-            return []  # Return empty list on error
+        data = user_store.load_users()  # Load users from data/users.json
+        return [cls.from_dict(user_data) for user_data in data]  # Convert each dict to User object
     
     @classmethod
     def get_user_by_username(cls, username):
@@ -153,27 +142,26 @@ class User:
             return user
       return None
     @classmethod
-    def save_users(cls, users: list, fn: str = USERS_FILE) -> None:
+    def save_users(cls, users: list, fn: str = None) -> None:
         """
-        Save users to JSON file.
+        Save users to data/users.json using the user_store utility.
         
         Args:
             users: List of User objects to persist.
-            fn: Filename to save to. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Raises:
             IOError: If file cannot be written.
         """
         user_dicts = [u.to_dict() if isinstance(u, cls) else u for u in users]  # Convert User objects to dicts
-        with open(fn, 'w') as f:  # Open users file for writing
-            json.dump(user_dicts, f, indent=2)  # Write formatted JSON to file
+        user_store.save_users(user_dicts)  # Save to data/users.json
     
     @classmethod
     def authenticate(
         cls,
         username: str,
         password: str,
-        fn: str = USERS_FILE
+        fn: str = None
     ) -> Optional["User"]:
         """
         Authenticate user by username and password.
@@ -181,12 +169,12 @@ class User:
         Args:
             username: Username to authenticate.
             password: Plain text password to verify.
-            fn: Filename to load users from. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Returns:
             User instance if authentication successful, None otherwise.
         """
-        users = cls.load_users(fn)  # Load all users from file
+        users = cls.load_users()  # Load all users from data/users.json
         for user in users:  # Loop through each user
             if user.username == username and user.verify_password(password):  # Match username and password
                 return user  # Return authenticated user
@@ -198,18 +186,18 @@ class User:
         username: str,
         password: str,
         role: str = "staff",
-        fn: str = USERS_FILE
+        fn: str = None
     ) -> Optional["User"]:
         """
         Create a new user (public method for self-registration).
         
-        Validates username uniqueness, hashes password, and persists.
+        Validates username uniqueness, hashes password, and persists to data/users.json.
         
         Args:
             username: Unique username.
             password: Plain text password.
             role: User role ('admin', 'staff', or 'viewer'). Defaults to 'staff'.
-            fn: Filename to save to. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Returns:
             User instance if created successfully, None if validation fails.
@@ -217,7 +205,7 @@ class User:
         Raises:
             ValueError: If username already exists.
         """
-        users = cls.load_users(fn)  # Load existing users
+        users = cls.load_users()  # Load existing users from data/users.json
         
         # Validate username uniqueness
         for user in users:  # Check each user
@@ -238,9 +226,9 @@ class User:
             role=role  # Assign role
         )
         
-        # Save to JSON
+        # Save to data/users.json
         users.append(new_user)  # Add new user to list
-        cls.save_users(users, fn)  # Persist to file
+        cls.save_users(users)  # Persist to data/users.json via user_store
         
         return new_user  # Return created user
     
@@ -249,7 +237,7 @@ class User:
         username: str,
         password: str,
         role: str = "staff",
-        fn: str = USERS_FILE
+        fn: str = None
     ) -> Optional["User"]:
         """
         Add a new user (admin-only method).
@@ -258,7 +246,7 @@ class User:
             username: Unique username.
             password: Plain text password.
             role: User role ('admin', 'staff', or 'viewer'). Defaults to 'staff'.
-            fn: Filename to save to. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Returns:
             User instance if created successfully, None if validation fails.
@@ -270,19 +258,19 @@ class User:
         if not self.is_admin():  # Check admin permission
             raise PermissionError("Only admins can add users.")  # Deny if not admin
         
-        return User.create_user(username, password, role, fn)  # Call public create_user if authorized
+        return User.create_user(username, password, role)  # Call public create_user if authorized
     
     def delete_user(
         self,
         username: str,
-        fn: str = USERS_FILE
+        fn: str = None
     ) -> bool:
         """
         Delete a user by username (admin-only method).
         
         Args:
             username: Username of user to delete.
-            fn: Filename to load/save users. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Returns:
             True if user was deleted, False if user not found.
@@ -296,24 +284,24 @@ class User:
         if username == self.username:  # Prevent self-deletion
             raise PermissionError("Cannot delete your own account.")  # Deny self-delete
         
-        users = User.load_users(fn)  # Load all users
+        users = User.load_users()  # Load all users from data/users.json
         initial_count = len(users)  # Record initial count
         users = [u for u in users if u.username != username]  # Remove target user
         
         if len(users) < initial_count:  # Check if user was deleted
-            User.save_users(users, fn)  # Save updated user list
+            User.save_users(users)  # Save updated user list to data/users.json
             return True  # Deletion successful
         
         return False  # User not found
     
-    def list_users(self, fn: str = USERS_FILE) -> list[dict]:
+    def list_users(self, fn: str = None) -> list[dict]:
         """
         List all users (admin-only method).
         
         Returns all users with username, role, and id information.
         
         Args:
-            fn: Filename to load users from. Defaults to USERS_FILE.
+            fn: Deprecated parameter, ignored. Uses data/users.json via user_store.
             
         Returns:
             List of user dictionaries containing id, username, and role.
@@ -324,7 +312,7 @@ class User:
         if not self.is_admin():  # Check admin permission
             raise PermissionError("Only admins can list users.")  # Deny if not admin
         
-        users = User.load_users(fn)  # Load all users
+        users = User.load_users()  # Load all users from data/users.json
         return [  # Return summary of each user
             {
                 "id": u.id,  # Include user ID

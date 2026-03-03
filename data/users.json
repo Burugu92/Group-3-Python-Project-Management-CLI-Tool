@@ -64,5 +64,11 @@
     "username": "testadmin",
     "hashed_password": "7e6e0c3079a08c5cc6036789b57e951f65f82383913ba1a49ae992544f1b4b6e",
     "role": "admin"
+  },
+  {
+    "id": 12,
+    "username": "integration_test_user",
+    "hashed_password": "7e6e0c3079a08c5cc6036789b57e951f65f82383913ba1a49ae992544f1b4b6e",
+    "role": "staff"
   }
 ]

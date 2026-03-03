@@ -1,16 +1,19 @@
 """
 Test suite for user.py - CLI Inventory System
 Uses pytest for proper unit testing with assertions
+
+Tests use models.user which reads from the centralized data/users.json via utils/user_store.
 """
 
 import pytest
 import os
 import sys
 import json
+from pathlib import Path
 
-# Add parent directory to path to import user module
+# Add parent directory to path to import models
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from user import User
+from models.user import User
 
 
 class TestUserLoading:
@@ -103,42 +106,37 @@ class TestUserCreation:
     def test_create_new_staff_user(self):
         """Test creating a new staff user"""
         test_username = "pytest_test_staff"
-        test_email = "pytest.test@example.com"
         
-        new_user = User.create_user(test_username, test_email, "testpass123", role="staff")
+        new_user = User.create_user(test_username, "testpass123", role="staff")
         
         assert new_user is not None, "New user should be created"
         assert new_user.username == test_username, "Username should match"
-        assert new_user.email == test_email, "Email should match"
         assert new_user.role == "staff", "Role should be 'staff'"
         assert isinstance(new_user.id, int), "User ID should be an integer"
     
     def test_created_user_is_persisted(self):
         """Test that created user is saved to file"""
         test_username = "pytest_test_staff"
-        test_email = "pytest.test@example.com"
         
-        User.create_user(test_username, test_email, "testpass123", role="staff")
+        User.create_user(test_username, "testpass123", role="staff")
         users = User.load_users()
         found_user = next((u for u in users if u.username == test_username), None)
         
-        assert found_user is not None, "User should be persisted to file"
+        assert found_user is not None, "User should be persisted to data/users.json"
         assert found_user.role == "staff", "Persisted user role should be staff"
-        assert found_user.email == test_email, "Persisted user email should match"
     
     def test_create_duplicate_user_raises_error(self):
         """Test that creating a user with existing username raises ValueError"""
         test_username = "pytest_duplicate_test"
-        test_email = "pytest.duplicate@example.com"
         
         # First, create a user
-        User.create_user(test_username, test_email, "password123", role="staff")
+        User.create_user(test_username, "password123", role="staff")
         
         # Try to create duplicate username - should raise ValueError
         with pytest.raises(ValueError) as exc_info:
-            User.create_user(test_username, "different@example.com", "password123", role="staff")
+            User.create_user(test_username, "password456", role="staff")
         
-        assert "already exists" in str(exc_info.value).lower(), "Error should mention username/email already exists"
+        assert "already exists" in str(exc_info.value).lower(), "Error should mention username already exists"
         
         # Clean up
         try:
@@ -217,7 +215,6 @@ class TestUserFromDict:
         user_data = {
             "id": 999,
             "username": "test_user",
-            "email": "test.user@example.com",
             "hashed_password": "abc123",
             "role": "staff"
         }
@@ -231,7 +228,6 @@ class TestUserFromDict:
         user_data = {
             "id": 999,
             "username": "test_user",
-            "email": "test.user@example.com",
             "hashed_password": "abc123",
             "role": "staff"
         }
@@ -240,7 +236,6 @@ class TestUserFromDict:
         
         assert user.id == 999, "ID should be 999"
         assert user.username == "test_user", "Username should be 'test_user'"
-        assert user.email == "test.user@example.com", "Email should be 'test.user@example.com'"
         assert user.role == "staff", "Role should be 'staff'"
 
 
