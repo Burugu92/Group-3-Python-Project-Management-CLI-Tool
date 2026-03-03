@@ -3,14 +3,15 @@
         "product_id": 1,
         "name": "Laptop",
         "category": "Electronics",
-        "quantity": 7
+        "price": 999.99,
+        "quantity": 8
     },
     {
         "product_id": 2,
         "name": "Mouse",
         "category": "Electronics",
         "price": 25.0,
-        "quantity": 35
+        "quantity": 25
     },
     {
         "product_id": 3,
@@ -18,5 +19,12 @@
         "category": "Electronics",
         "price": 45.0,
         "quantity": 25
+    },
+    {
+        "product_id": 4,
+        "name": "Monitor",
+        "category": "Electronics",
+        "price": 299.99,
+        "quantity": 5
     }
 ]

@@ -110,6 +110,11 @@ def list_products(cli_context, args):
 
 @login_required
 def sell_product(cli_context, args):
+    user = cli_context["user"]
+    if user.role == "viewer":
+        print("❌ Viewers can only view products.")
+        return
+    
     products_file = "data/products.json"
     products = load_products(products_file)
 
@@ -154,6 +159,10 @@ def restock_product(cli_context, args):
 
 @login_required
 def list_transactions_cli(cli_context, args):
+    user = cli_context["user"]
+    if user.role == "viewer":
+        print("❌ Viewers cannot view transaction history.")
+        return
     Transaction.load_transactions_from_file()
     Transaction.list_transactions()
 

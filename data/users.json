@@ -58,5 +58,11 @@
     "username": "user2",
     "hashed_password": "318aee3fed8c9d040d35a7fc1fa776fb31303833aa2de885354ddf3d44d8fb69",
     "role": "viewer"
+  },
+  {
+    "id": 11,
+    "username": "testadmin",
+    "hashed_password": "7e6e0c3079a08c5cc6036789b57e951f65f82383913ba1a49ae992544f1b4b6e",
+    "role": "admin"
   }
 ]
