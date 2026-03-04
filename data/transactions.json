@@ -1,9 +1,16 @@
 [
     {
-        "item_name": "Mouse",
+        "item_name": "Laptop",
         "quantity": 2,
         "type": "sale",
-        "timestamp": "2026-03-03 11:57:12",
+        "timestamp": "2026-03-04 23:50:18",
         "transaction_id": 0
+    },
+    {
+        "item_name": "Laptop",
+        "quantity": 5,
+        "type": "sale",
+        "timestamp": "2026-03-04 23:50:18",
+        "transaction_id": 1
     }
 ]

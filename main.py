@@ -219,47 +219,49 @@ class Color:
 # CLI Argument Parser
 
 def main():
-    cli_context = {"user": load_session()}  # Auto-load session
+    cli_context = {"user": load_session()}
 
     parser = argparse.ArgumentParser(description="CLI Inventory Management System")
     subparsers = parser.add_subparsers(dest="command")
 
-    reg_parser = subparsers.add_parser("register", help="Register a new user")
-    reg_parser.add_argument("username")
-    reg_parser.add_argument("--role", choices=["admin", "staff", "viewer"])
-    reg_parser.set_defaults(func=register)
+    # Argparse commands
 
-    login_parser = subparsers.add_parser("login", help="Login as user")
+    reg = subparsers.add_parser("register")
+    reg.add_argument("username")
+    reg.add_argument("--role", choices=["admin", "staff", "viewer"])
+    reg.set_defaults(func=register)
+
+    login_parser = subparsers.add_parser("login")
     login_parser.add_argument("username")
     login_parser.set_defaults(func=login)
 
-    subparsers.add_parser("logout", help="Logout current user").set_defaults(func=logout)
+    subparsers.add_parser("logout").set_defaults(func=logout)
 
-    add_prod_parser = subparsers.add_parser("add-product", help="Add a new product (admin only)")
-    add_prod_parser.add_argument("name")
-    add_prod_parser.add_argument("category")
-    add_prod_parser.add_argument("price", type=float)
-    add_prod_parser.add_argument("quantity", type=int)
-    add_prod_parser.set_defaults(func=add_product)
+    add_prod = subparsers.add_parser("add-product")
+    add_prod.add_argument("name")
+    add_prod.add_argument("category")
+    add_prod.add_argument("price", type=float)
+    add_prod.add_argument("quantity", type=int)
+    add_prod.set_defaults(func=add_product)
 
-    subparsers.add_parser("list-products", help="List all products").set_defaults(func=list_products)
+    subparsers.add_parser("list-products").set_defaults(func=list_products)
 
-    sell_parser = subparsers.add_parser("sell-product", help="Sell a product")
-    sell_parser.add_argument("product_id", type=int)
-    sell_parser.add_argument("quantity", type=int)
-    sell_parser.set_defaults(func=sell_product)
+    sell = subparsers.add_parser("sell-product")
+    sell.add_argument("product_id", type=int)
+    sell.add_argument("quantity", type=int)
+    sell.set_defaults(func=sell_product)
 
-    restock_parser = subparsers.add_parser("restock-product", help="Restock a product (admin only)")
-    restock_parser.add_argument("product_id", type=int)
-    restock_parser.add_argument("quantity", type=int)
-    restock_parser.set_defaults(func=restock_product)
+    restock = subparsers.add_parser("restock-product")
+    restock.add_argument("product_id", type=int)
+    restock.add_argument("quantity", type=int)
+    restock.set_defaults(func=restock_product)
 
-    subparsers.add_parser("list-transactions", help="View all transactions").set_defaults(func=list_transactions_cli)
-
-    subparsers.add_parser("list-users", help="List all users (admin only)").set_defaults(func=list_users_cli)
+    subparsers.add_parser("list-transactions").set_defaults(func=list_transactions_cli)
+    subparsers.add_parser("list-users").set_defaults(func=list_users_cli)
 
     args = parser.parse_args()
 
+    # Run argparse commands
     if hasattr(args, "func"):
         args.func(cli_context, args)
     else:
