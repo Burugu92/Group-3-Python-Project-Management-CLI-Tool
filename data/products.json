@@ -3,8 +3,8 @@
         "product_id": 1,
         "name": "Laptop",
         "category": "Electronics",
-         "price": 200.0,
-        "quantity": 7
+        "price": 200.0,
+        "quantity": 0
     },
     {
         "product_id": 2,
@@ -25,6 +25,20 @@
         "name": "Monitor",
         "category": "Electronics",
         "price": 299.99,
+        "quantity": 5
+    },
+    {
+        "product_id": 5,
+        "name": "Avocado",
+        "category": "Fruits",
+        "price": 35.0,
+        "quantity": 55
+    },
+    {
+        "product_id": 6,
+        "name": "Widget",
+        "category": "Gadgets",
+        "price": 10.0,
         "quantity": 5
     }
 ]
