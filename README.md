@@ -8,9 +8,9 @@ This project was developed as part of a summative group lab to simulate building
 
 🚀 Project Overview
 
-Small businesses often need a simple and lightweight way to manage stock without expensive software.
+Small businesses often need a simple and lightweight way to manage their stock/inventory without expensive software. This project seeks to make that easier and convenient for them.
 
-This CLI tool allows users to:
+This CLI tool allows businesses to:
 
 Register and log in securely
 
