@@ -1,5 +1,222 @@
 import argparse
-from methods import *
+import sys
+import os
+import json
+from getpass import getpass
+from tabulate import tabulate
+
+from models.Products import Product
+from models.transactions import Transaction
+from models.user import User
+
+SESSION_FILE = "data/session.json"
+
+# Session Helpers
+
+def save_session(user):
+    os.makedirs("data", exist_ok=True)
+    with open(SESSION_FILE, "w") as f:
+        json.dump({
+            "username": user.username,
+            "role": user.role
+        }, f)
+
+def load_session():
+    if not os.path.exists(SESSION_FILE):
+        return None
+    with open(SESSION_FILE, "r") as f:
+        data = json.load(f)
+        # You MUST have this method in User model
+        return User.get_user_by_username(data["username"])
+
+def clear_session():
+    if os.path.exists(SESSION_FILE):
+        os.remove(SESSION_FILE)
+
+# Helper decorators
+
+def login_required(func):
+    def wrapper(cli_context, *args, **kwargs):
+        if not cli_context.get("user"):
+            print("❌ You must login first.")
+            return
+        return func(cli_context, *args, **kwargs)
+    return wrapper
+
+def admin_required(func):
+    def wrapper(cli_context, *args, **kwargs):
+        user = cli_context.get("user")
+        if not user or not user.is_admin():
+            print("❌ Admin privileges required.")
+            return
+        return func(cli_context, *args, **kwargs)
+    return wrapper
+
+# CLI Command Implementations
+
+def register(cli_context, args):
+    username = args.username
+    password = getpass("Enter password: ")
+    role = args.role or "staff"
+    try:
+        user = User.create_user(username, password, role)
+        print(f"✅ User '{user.username}' created with role '{role}'.")
+    except ValueError as ve:
+        print(f"❌ {ve}")
+
+def login(cli_context, args):
+    username = args.username
+    password = getpass("Enter password: ")
+    user = User.authenticate(username, password)
+    if user:
+        save_session(user)
+        print(f"✅ Logged in as {user.username} ({user.role})")
+    else:
+        print("❌ Invalid credentials.")
+
+def logout(cli_context, args):
+    clear_session()
+    print("✅ Logged out successfully.")
+
+@login_required
+def add_product(cli_context, args):
+    user = cli_context["user"]
+    if not user.is_admin():
+        print("❌ Only admins can add products.")
+        return
+
+    products_file = "data/products.json"
+    products = load_products(products_file)
+
+    product_id = max([p.product_id for p in products], default=0) + 1
+    new_product = Product(product_id, args.name, args.category, args.price, args.quantity)
+    products.append(new_product)
+    save_products(products_file, products)
+
+    print(f"✅ Product '{args.name}' added successfully.")
+
+@login_required
+def list_products(cli_context, args):
+    print_section("Inventory Products", Color.CYAN)
+    products_file = "data/products.json"
+    products = load_products(products_file)
+
+    if not products:
+        print("📦 No products found.")
+        return
+
+    table = [[p.product_id, p.name, p.category, p.price, p.quantity] for p in products]
+    print(tabulate(table, headers=["ID", "Name", "Category", "Price", "Qty"], tablefmt="grid"))
+
+@login_required
+def sell_product(cli_context, args):
+    user = cli_context["user"]
+    if user.role == "viewer":
+        print("❌ Viewers can only view products.")
+        return
+    
+    products_file = "data/products.json"
+    products = load_products(products_file)
+
+    product = next((p for p in products if p.product_id == args.product_id), None)
+    if not product:
+        print("❌ Product not found.")
+        return
+
+    try:
+        product.decrease_stock(args.quantity)
+        save_products(products_file, products)
+
+        transaction = Transaction(product.name, args.quantity, "sale")
+        Transaction.save_transaction(transaction)
+
+        print(f"✅ Sold {args.quantity} x {product.name}")
+    except ValueError as ve:
+        print(f"❌ {ve}")
+
+@login_required
+def restock_product(cli_context, args):
+    user = cli_context["user"]
+    if not user.is_admin():
+        print("❌ Only admins can restock products.")
+        return
+
+    products_file = "data/products.json"
+    products = load_products(products_file)
+
+    product = next((p for p in products if p.product_id == args.product_id), None)
+    if not product:
+        print("❌ Product not found.")
+        return
+
+    product.increase_stock(args.quantity)
+    save_products(products_file, products)
+
+    transaction = Transaction(product.name, args.quantity, "restock")
+    Transaction.save_transaction(transaction)
+
+    print(f"✅ Restocked {args.quantity} x {product.name}")
+
+@login_required
+def list_transactions_cli(cli_context, args):
+    print_section("All Transactions", Color.CYAN)
+    user = cli_context["user"]
+    if user.role == "viewer":
+        print("❌ Viewers cannot view transaction history.")
+        return
+    Transaction.load_transactions_from_file()
+    Transaction.list_transactions()
+
+@login_required
+@admin_required
+def list_users_cli(cli_context, args):
+    print_section("All Registered Users", Color.PURPLE)
+    user = cli_context["user"]
+    users = user.list_users()
+    table = [[u["id"], u["username"], u["role"]] for u in users]
+    print(tabulate(table, headers=["ID", "Username", "Role"], tablefmt="grid"))
+
+# JSON Helpers
+
+def load_products(file_path="data/products.json"):
+    from utils.storage_handler import load_from_file
+    data = load_from_file(file_path)
+    return [Product.from_dict(d) for d in data]
+
+def save_products(file_path, products):
+    from utils.storage_handler import save_to_file
+    save_to_file([p.to_dict() for p in products], file_path)
+    
+#for menu styling and color output    
+def print_section(title, color_code="\033[94m"):
+    """
+    Prints a styled header like: ══════════ TITLE ══════════
+    Default color is Cyan.
+    """
+    width = 60
+    # Clean up the title and center it
+    styled_title = f" {title.upper()} "
+    # Fill the rest with '=' or '═'
+    padding = (width - len(styled_title)) // 2
+    line = "═" * padding
+    
+    reset = "\033[0m"
+    print(f"\n{color_code}{line}{styled_title}{line}{reset}\n")
+
+# ANSI Color shortcuts
+class Color:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+# CLI Argument Parser
 
 def main():
     cli_context = {"user": load_session()}
@@ -47,106 +264,24 @@ def main():
     # Run argparse commands
     if hasattr(args, "func"):
         args.func(cli_context, args)
-        return
-
-    # Interactive Menu
-    
-    while True:
-        user = cli_context.get("user")
-        login_status = f"(Logged in as: {user.username} - {user.role})" if user else ""
+    else:
         print_section("CLI Inventory Management System", Color.BOLD + Color.GREEN)
-
-        menu = [
-            ["1", "Register"],
-            ["2", f"Login {login_status}"],
-            ["3", "List Products"],
-            ["4", "Add Product (Admin)"],
-            ["5", "Sell Product"],
-            ["6", "Restock Product (Admin)"],
-            ["7", "List Transactions"],
-            ["8", "List Users (Admin)"],
-            ["9", "Logout"],
-            ["0", "Exit"]
-        ]
-        print(tabulate(menu, headers=["#", "Action"], tablefmt="simple"))
-
-        choice = input("\nSelect option: ").strip()
-
-        try:
-            if choice == "1":
-                username = input("Username: ").strip()
-                role = input("Role (admin/staff/viewer) [default=staff]: ").strip() or "staff"
-                register(cli_context, argparse.Namespace(username=username, role=role))
-
-            elif choice == "2":
-                if user:
-                    print(f"❌ Already logged in as {user.username} ({user.role})")
-                    continue
-                username = input("Username: ").strip()
-                login(cli_context, argparse.Namespace(username=username))
-
-            elif choice == "3":
-                list_products(cli_context, argparse.Namespace())
-
-            elif choice == "4":
-                if not user or not user.is_admin():
-                    print("❌ Admin privileges required.")
-                    continue
-                name = input("Name: ").strip()
-                category = input("Category: ").strip()
-                try:
-                    price = float(input("Price: ").strip())
-                    quantity = int(input("Quantity: ").strip())
-                except ValueError:
-                    print("❌ Price and quantity must be numbers.")
-                    continue
-                add_product(cli_context, argparse.Namespace(name=name, category=category, price=price, quantity=quantity))
-
-            elif choice == "5":
-                if not user:
-                    print("❌ You must login first.")
-                    continue
-                try:
-                    product_id = int(input("Product ID: ").strip())
-                    quantity = int(input("Quantity: ").strip())
-                except ValueError:
-                    print("❌ Product ID and quantity must be numbers.")
-                    continue
-                sell_product(cli_context, argparse.Namespace(product_id=product_id, quantity=quantity))
-
-            elif choice == "6":
-                if not user or not user.is_admin():
-                    print("❌ Admin privileges required.")
-                    continue
-                try:
-                    product_id = int(input("Product ID: ").strip())
-                    quantity = int(input("Quantity: ").strip())
-                except ValueError:
-                    print("❌ Product ID and quantity must be numbers.")
-                    continue
-                restock_product(cli_context, argparse.Namespace(product_id=product_id, quantity=quantity))
-
-            elif choice == "7":
-                list_transactions_cli(cli_context, argparse.Namespace())
-
-            elif choice == "8":
-                if not user or not user.is_admin():
-                    print("❌ Admin privileges required.")
-                    continue
-                list_users_cli(cli_context, argparse.Namespace())
-
-            elif choice == "9":
-                logout(cli_context, argparse.Namespace())
-
-            elif choice == "0":
-                print("Goodbye 👋")
-                break
-
-            else:
-                print("❌ Invalid option.")
-
-        except Exception as e:
-            print(f"❌ {e}")
+        #parser.print_help()
+        menu_options = [["#", "Command", "Action", "Permission"],
+    ["1", "register", "Create a new account", "Public"],
+    ["2", "login", "Access your account", "Public"],
+    ["3", "list-products", "View inventory", "Staff/Admin/Viewer"],
+    ["4", "add-product", "Create new entry", "Admin Only"],
+    ["5", "sell-product", "Register a sale", "Staff/Admin"],
+    ["6", "restock-product", "Increase stock levels", "Admin Only"],
+    ["7", "list-transactions", "View audit history", "Staff/Admin"],
+    ["8", "list-users", "Manage team", "Admin Only"],
+    ["9", "logout", "Exit current session", "Public"]
+    
+]
+        
+        print(tabulate(menu_options, headers="firstrow", tablefmt="simple"))
+        print(f"\n{Color.YELLOW}💡 Hint: Use --help after any command for details.{Color.END}\n")
 
 if __name__ == "__main__":
     main()

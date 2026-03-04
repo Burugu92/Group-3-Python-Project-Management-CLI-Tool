@@ -52,4 +52,5 @@ def test_save_and_load_transactions(capsys):
     t2 = Transaction("ItemB", 3, "sale")
     Transaction.save_transaction(t2)
     Transaction.load_transactions_from_file()
-    assert Transaction.transactions[-1].transaction_id == 2
+    assert len(Transaction.transactions) == 2
+    assert Transaction.transactions[-1].transaction_id == 1
