@@ -146,7 +146,7 @@ Run 'pipenv shell' to enter the virtual environment.
 3️⃣ Install Dependencies
 Run 'pipenv install' to install all necessary dependencies.
 ▶️ Running the Application
-python cli.py
+python main.py
 
 Follow the on-screen prompts to register, login, and manage inventory.
 
@@ -181,6 +181,8 @@ feature/tests
 Pull Requests for merging features
 
 Descriptive commit messages
+
+Project managed using Jira https://group3-python-inventory-management-system.atlassian.net/jira/core/projects/IN/board?filter=&groupBy=status
 
 🛠️ Technologies Used
 
