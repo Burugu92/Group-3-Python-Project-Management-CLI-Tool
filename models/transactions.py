@@ -5,14 +5,14 @@ from utils.storage_handler import save_to_file, load_from_file
 
 
 class Transaction:
-    id_counter = 0  # Class variable to auto-increment transaction IDs
+    id_counter = 1  # Class variable to auto-increment transaction IDs
     transactions = []
     transactions_data = "data/transactions.json"
 
     def __init__(self, item_name, quantity, transaction_type, transaction_id=None, timestamp=None):
         if transaction_id is None:
-            self.transaction_id = Transaction.id_counter
             Transaction.id_counter += 1
+            self.transaction_id = Transaction.id_counter
         else:
             self.transaction_id = transaction_id
         
@@ -67,7 +67,7 @@ class Transaction:
             
             if t.transaction_id > max_id:
                 max_id = t.transaction_id
-        cls.id_counter = max_id + 1
+        cls.id_counter = 0
 
 
     @classmethod
@@ -86,6 +86,3 @@ class Transaction:
         for item in cls.transactions:
             table_data.append([item.item_name, item.quantity, item.type, item.timestamp, item.transaction_id])
         print(tabulate(table_data, headers=headers, tablefmt="grid" ))
-        
-
-    
