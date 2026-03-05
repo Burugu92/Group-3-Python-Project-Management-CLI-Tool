@@ -63,4 +63,4 @@ def test_sell_product_not_found(monkeypatch, capsys):
     monkeypatch.setattr("methods.load_products", lambda: [])
     sell_product({"user": mock_user_admin}, SimpleNamespace(product_id=99, quantity=1))
     captured = capsys.readouterr()
-    assert "INVENTORY MANAGEMENT SYSTEM" in captured.out
+    assert "Product not found" in captured.out
